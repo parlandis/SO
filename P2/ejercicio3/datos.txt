@@ -1,0 +1,3 @@
+1 23.45 Primera_Etique
+2 99.99 Segunda_Etique
+3 0.12 Ultima_Linea
