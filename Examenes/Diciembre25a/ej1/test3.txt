@@ -1,0 +1,5 @@
+sleep 3 & 
+echo uno 
+echo dos 
+sleep 2 & 
+echo tres 

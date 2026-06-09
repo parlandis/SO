@@ -1,0 +1,8 @@
+ 
+Ejecutando comando: echo pene
+pene
+Command terminated (pid: 3541, status: 0)
+Ejecutando comando: echo pene
+pene
+Command terminated (pid: 3582, status: 0)
+

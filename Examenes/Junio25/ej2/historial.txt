@@ -1,0 +1,650 @@
+    1  cd P2
+    2  cd ejercicio1
+    3  ls 
+    4  make
+    5  ./show_file
+    6  cat "Tusmuertos" > hola.txt
+    7  echo  "Tusmuertos" > hola.txt
+    8  cat hola.txt 
+    9  ./show_file hola.txt 
+   10  man fread
+   11  make
+   12  ./show_file hola.txt 
+   13  ls
+   14  ./check_showfile 
+   15  man fopen
+   16  cd ..
+   17  cd ejercicio2
+   18  ls
+   19  make
+   20  ./write_strings out  London Paris Madrid Barcelona Berlin Lisbon
+   21  xxd out 
+   22  man fseek
+   23  make
+   24  clear
+   25  make
+   26  man ftell
+   27  make
+   28  ./read_strings out
+   29  make
+   30  ./read_strings out
+   31  make
+   32  ./read_strings out
+   33  cd ..
+   34  cd ejercicio3
+   35  ls
+   36  gcc -0 write write_records_text.c 
+   37  gcc -o write write_records_text.c 
+   38  clear
+   39  gcc -o write write_records_text.c 
+   40  ./write mis_datos.txt
+   41  cat mis_datos.txt 
+   42  clear
+   43  gcc -o read_records_text.c read_text
+   44  gcc -o read_text read_records_text.c
+   45  clear
+   46  gcc -o read_text read_records_text.c
+   47  clear
+   48  gcc -o read_text read_records_text.c
+   49  ./read_text mis_datos.txt 
+   50  gcc -o read_text read_records_text.c
+   51  ./read_text mis_datos.txt 
+   52  clear
+   53  ./read_text mis_datos.txt 
+   54  gcc -o read_text read_records_text.c
+   55  ./read_text mis_datos.txt 
+   56  clear
+   57  gcc -o read_text read_records_text.c
+   58  cat mis_datos.txt 
+   59  ./read_text mis_datos.txt 
+   60  gcc -o read_text read_records_text.c
+   61  ./read_text mis_datos.txt 
+   62  gcc -o read_text read_records_text.c
+   63  ./read_text mis_datos.txt 
+   64  gcc -o read_text read_records_text.c
+   65  ./read_text mis_datos.txt 
+   66  clear
+   67  gcc -o write_bin write_records_bin.c 
+   68  ./write_bin mis_datos.bin
+   69  xxd mis_datos.bin 
+   70  gcc -o write_bin write_records_bin.c 
+   71  ./write_bin mis_datos.bin
+   72  xxd mis_datos.bin 
+   73  clear
+   74  gcc -o write_bin write_records_bin.c 
+   75  xxd mis_datos.bin 
+   76  ./write_bin mis_datos.bin
+   77  xxd mis_datos.bin 
+   78  gcc -o read_bin read_records_bin.c 
+   79  clear
+   80  gcc -o read_bin read_records_bin.c 
+   81  ./read_bin mis_datos.bin 
+   82  gcc -o read_bin read_records_bin.c 
+   83  ./read_bin mis_datos.bin 
+   84  gcc -o conversion conversion.c 
+   85  clear
+   86  gcc -o conversion conversion.c 
+   87  clear
+   88  ./conversion -i t -o t mis_datos.txt stdout
+   89  gcc -o conversion conversion.c 
+   90  ./conversion -i t -o t mis_datos.txt stdout
+   91  gcc -o conversion conversion.c 
+   92  clear
+   93  gcc -o conversion conversion.c 
+   94  clear
+   95  gcc -o conversion conversion.c 
+   96  ./conversion -i 'b' mis_datos.bin stdout
+   97  gcc -o conversion conversion.c 
+   98  ./conversion -i 'b' mis_datos.bin stdout
+   99  xxd mis_datos.bin 
+  100  nano datos 
+  101  nano datos.txt
+  102  cat datos.txt 
+  103  gcc -Wall -Wextra conversion.c -o conversion
+  104  ./conversion -i t -o b datos.txt resultado.bin
+  105  ./conversion -i b -o t resultado.bin comprobacion.txt
+  106  cat comprobacion.txt 
+  107  nano o datos.txt 
+  108  cat datos.txt 
+  109  clear
+  110  gcc -Wall -Wextra conversion.c -o conversion
+  111  ./conversion -i t -o b datos.txt resultado.bin
+  112  ./conversion -i b -o t resultado.bin comprobacion.txt
+  113  cat comprobacion.txt 
+  114  cd ..
+  115  cd ficheros_p3
+  116  ls
+  117  cd ejercicio1
+  118  man open
+  119  echo "Hola buenas tardes" > hola.txt
+  120  cat hola.txt 
+  121  gcc -o copy copy.c 
+  122  ./copy hola.txt copia.txt
+  123  gcc -o copy copy.c 
+  124  ./copy hola.txt copia.txt
+  125  gcc -o copy copy.c 
+  126  ./copy hola.txt copia.txt
+  127  gcc -o copy copy.c 
+  128  ./copy hola.txt copia.txt
+  129  ls
+  130  rm copia.txt 
+  131  ls
+  132  ./copy hola.txt copia.txt
+  133  cat copia.txt
+  134  ./copy hola.txt copia.txt
+  135  nano hola.txt
+  136  ./copy hola.txt copia.txt
+  137  cat copia.txt 
+  138  ls
+  139  cd ..
+  140  cd ejercicio2
+  141  ls
+  142  ln -s ../ejercicio1/Makefile 
+  143  ls
+  144  ln -s ../ejercicio1/Makefile mylink
+  145  ls
+  146  ls -l
+  147  ../ejercicio/copy mylink mylinkcopy
+  148  gcc -Wall -Wextra copy2.c -o copy2
+  149  mkdir prueba_copia
+  150  cd prueba_copia
+  151  ls
+  152  echo "Contenido original del Makefile" > Makefile
+  153  ln -s Makefile mylink
+  154  mkdir mi_carpeta
+  155  ls -l
+  156  ./../copy2 Makefile copia_regular.txt
+  157  ./../copy2 mylink mi_enlace_copia
+  158  ls -l
+  159  ./../copy2 mi_carpeta copia_destino
+  160  valgrind ./../copy2 mylink mi_enlace_valgrind
+  161  sudo apt install 
+  162  install valgrind
+  163  sudo apt install valgrind
+  164  valgrind ./../copy2 mylink mi_enlace_valgrind
+  165  cd ..
+  166  cd ejercicio3
+  167  ls
+  168  make
+  169  echo "Hola buenos dias maricarmen" > hola.txt
+  170  cat hola.txt 
+  171  ./mostrar -n 4 hola.txt 
+  172  make
+  173  ./mostrar -n 4 hola.txt 
+  174  /mostrar -n 4 hola.txt 
+  175  make
+  176  ./mostrar -n 4 hola.txt 
+  177  clear
+  178  make
+  179  ./mostrar -n 4 hola.txt 
+  180  make
+  181  ./mostrar -n 4 hola.txt 
+  182  make
+  183  ./mostrar -n 4 hola.txt 
+  184  make
+  185  ./mostrar -n 4 hola.txt 
+  186  make
+  187  ./mostrar -n 4 hola.txt 
+  188  make
+  189  ./mostrar -n 4 hola.txt 
+  190  make
+  191  ./mostrar -n 4 hola.txt 
+  192  make
+  193  ./mostrar -n 4 hola.txt 
+  194  make
+  195  ./mostrar -n 4 hola.txt 
+  196  sudo apt update 
+  197  sudo apt install build-essential gdb
+  198  make
+  199  cd ficheros_p3
+  200  cd ejercicio3
+  201  ls
+  202  make
+  203  clear
+  204  make
+  205  ls
+  206  ./mostrar -n4 -e 
+  207  ./mostrar -n4 -e hola.txt 
+  208  ./mostrar -n4  hola.txt
+  209  cd ficheros_p3
+  210  cd ejercicio4
+  211  ls
+  212  make
+  213  clear
+  214  make
+  215  ./espacio .
+  216  make
+  217  ./espacio .
+  218  make
+  219  cd ficheros_p3
+  220  cd ejercicio4
+  221  ls
+  222  make
+  223  clear
+  224  make
+  225  ./espacio .
+  226  make
+  227  ./espacio .
+  228  clear
+  229  ls
+  230  ./espacio .
+  231  make
+  232  ./espacio .
+  233  ./espacio *
+  234  cd ..
+  235  cd ejercicio6
+  236  gcc -o apertura apertura.c 
+  237  ./apertura
+  238  gcc -o apertura apertura.c 
+  239  clear
+  240  gcc -o apertura apertura.c 
+  241  clear
+  242  gcc -o apertura apertura.c 
+  243  clear
+  244  gcc -o apertura apertura.c 
+  245  clear
+  246  gcc -o apertura apertura.c 
+  247  ls
+  248  ./apertura
+  249  echo "Hola buenas" > hola.txt
+  250  ./apertura -f hola.txt 
+  251  ./apertura -f hola.txt -r
+  252  man open
+  253  man 3 open
+  254  man 2 open
+  255  gcc -o apertura apertura.c 
+  256  ./apertura -f hola.txt -r
+  257  gcc -o apertura apertura.c 
+  258  ./apertura -f hola.txt -r
+  259  cat hola.txt 
+  260  gcc -o apertura apertura.c 
+  261  ./apertura -f hola.txt -r
+  262  gcc -o apertura apertura.c 
+  263  ./apertura -f hola.txt -r
+  264  gcc -o apertura apertura.c 
+  265  ./apertura -f hola.txt -r
+  266  hola.txt
+  267  cat hola.txt 
+  268  echo "hola" > hola.txt 
+  269  cat hola.txt 
+  270  ./apertura -f hola.txt -r
+  271  ./apertura -f hola.txt -r -w
+  272  clear
+  273  ./apertura -f hola.txt -r -w
+  274  gcc -o apertura apertura.c 
+  275  ./apertura -f hola.txt -r -w
+  276  gcc -o apertura apertura.c 
+  277  ./apertura -f hola.txt -r -w
+  278  cat hola.txt 
+  279  ./apertura -f hola.txt -r -w
+  280  gcc -o apertura apertura.c 
+  281  ./apertura -f hola.txt -r -w
+  282  cat hola.txt 
+  283  cd ficheros_p4
+  284  ls
+  285  cd ejercicio1
+  286  ls
+  287  make
+  288  ./run_commands xeyes
+  289  ./run_commands 
+  290  make
+  291  ./run_commands 
+  292  make
+  293  nano Makefile 
+  294  clear
+  295  make
+  296  ./run_commands -x ls 
+  297  make
+  298  ./run_commands -x ls 
+  299  make
+  300  ./run_commands -x ls 
+  301  make
+  302  ./run_commands -x ls 
+  303  make
+  304  ./run_commands -x ls 
+  305  make
+  306  ./run_commands -x ls 
+  307  make
+  308  ./run_commands -x ls 
+  309  ./run_commands -x ls -l
+  310  man fgets
+  311  clear
+  312  ls
+  313  make 
+  314  make
+  315  clear
+  316  ./run_commands -s test1
+  317  make
+  318  clear
+  319  make
+  320  clear
+  321  make
+  322  ./run_commands -s test1
+  323  clear
+  324  make
+  325  ./run_commands -s test1
+  326  celar
+  327  clear
+  328  make
+  329  ./run_commands -s test1
+  330  make
+  331  ./run_commands -s test1
+  332  make 
+  333  ./run_commands -s test1
+  334  ./run_commands -s test1 -o
+  335  ./run_commands -s test1 -b
+  336  make
+  337  ./run_commands -s test1 -b
+  338  clear
+  339  make 
+  340  make
+  341  ./run_commands -x "ls -l"
+  342  man pthread
+  343  man pthread_create
+  344  ls
+  345  cd ..
+  346  cd ejercicio2
+  347  ls
+  348  make
+  349  clear
+  350  ls
+  351  ./hilos 
+  352  make
+  353  ./hilos 
+  354  cd ..
+  355  cd ejercicio3
+  356  ls
+  357  make
+  358  clear
+  359  make
+  360  celar
+  361  clear
+  362  make
+  363  clear
+  364  make
+  365  cd ficheros_p4
+  366  cd ejercicio3
+  367  ls
+  368  make
+  369  ./signalsyfork ls -l
+  370  ./signalsyfork "ls -l"
+  371  ./signalsyfork ls -l
+  372  clear
+  373  make
+  374  ./signalsyfork ls -l
+  375  make
+  376  ./signalsyfork ls -l
+  377  make
+  378  ./signalsyfork ls -l
+  379  make
+  380  ./signalsyfork ls -l
+  381  make
+  382  clear
+  383  make
+  384  clear
+  385  make
+  386  ./signalsyfork ls -l
+  387  ./signalsyfork xeyes
+  388  gcc -Wall -Wextra signalsyfork.c -o signalsyfork
+  389  ./signalsyfork echo "Hola Mundo"
+  390  ./signalsyfork sleep 30
+  391  cd ..
+  392  cd ejercicio4
+  393  ls
+  394  make
+  395  clear
+  396  ls
+  397  ./inicial
+  398  $ for i in $(seq 10); do ./inicial ; done
+  399  make
+  400  ./inicialb
+  401  $ for i in $(seq 10); do ./inicialb ; done
+  402  make
+  403  for i in $(seq 10); do ./inicialb ; done
+  404  make
+  405  for i in $(seq 10); do ./inicial ; done
+  406  make
+  407  for i in $(seq 10); do ./inicialb ; done
+  408  make
+  409  for i in $(seq 10); do ./inicialb ; done
+  410  make
+  411  for i in $(seq 10); do ./iniciala ; done
+  412  for i in $(seq 10); do ./inicial ; done
+  413  make
+  414  for i in $(seq 10); do ./inicialb ; done
+  415  make
+  416  for i in $(seq 10); do ./inicialb ; done
+  417  clear
+  418  make
+  419  ls
+  420  cd ..
+  421  cd ejercicio5
+  422  cd ..
+  423  cd ficheros_p5
+  424  ls
+  425  make
+  426  clear
+  427  make
+  428  clear
+  429  make
+  430  clear
+  431  make
+  432  clear
+  433  make
+  434  clear
+  435  make
+  436  ./disco ejemplo.txt 
+  437  make
+  438  ./disco ejemplo.txt 
+  439  ./disco ejemplo2.txt 
+  440  make
+  441  ./disco ejemplo2.txt 
+  442  ./disco ejemplo.txt 
+  443  ./disco ejemplo2.txt 
+  444  make
+  445  ./disco ejemplo.txt 
+  446  make
+  447  ./disco ejemplo.txt 
+  448  make
+  449  ./disco ejemplo.txt 
+  450  clear
+  451  make
+  452  clear
+  453  make
+  454  ./disco ejemplo.txt 
+  455  make
+  456  clear
+  457  make
+  458  ./disco ejemplo.txt 
+  459  make
+  460  ./disco ejemplo.txt 
+  461  clear
+  462  make
+  463  clear
+  464  ./disco ejemplo.txt 
+  465  clear
+  466  make
+  467  ./disco ejemplo.txt 
+  468  make
+  469  ./disco ejemplo.txt 
+  470  make
+  471  ./disco ejemplo.txt 
+  472  make
+  473  ./disco ejemplo.txt 
+  474  clear
+  475  make
+  476  clear
+  477  ./disco ejemplo.txt 
+  478  make
+  479  clear
+  480  ./disco ejemplo.txt 
+  481  make
+  482  ./disco ejemplo.txt 
+  483  make
+  484  clear
+  485  ./disco ejemplo.txt 
+  486  make
+  487  ./disco ejemplo.txt 
+  488  nano ejemplo.txt 
+  489  ./disco ejemplo.txt 
+  490  cd ..
+  491  ls
+  492  cd ficheros_p6
+  493  ls
+  494  make
+  495  sem_open
+  496  man sem_open
+  497  cd Practica4
+  498  LS
+  499  ls
+  500  cd Practica\ 
+  501  cd practica\ 4/
+  502  ls
+  503  cd ejercicio4
+  504  ls
+  505  make
+  506  clear
+  507  ls
+  508  cd ficheros_p6
+  509  ls
+  510  man mmap
+  511  man 2 mmap
+  512  make
+  513  man sigaction
+  514  clear
+  515  make
+  516  ./cocinero
+  517  make
+  518  ./cocinero
+  519  make
+  520  clear
+  521  ls
+  522  cd Examenes/
+  523  ls
+  524  cd Junio25/
+  525  ls
+  526  cd ej2
+  527  ls
+  528  man fgets
+  529  man open 
+  530  man 2 fopen
+  531  man fopen
+  532  cd ..
+  533  cd ficheros_p5
+  534  ls
+  535  gcc -g disco.c -o disco -pthread
+  536  valgrind ./disco
+  537  valgrind ./disco ejemplo.txt 
+  538  cd ..
+  539  ls
+  540  cd E
+  541  cd Examenes/
+  542  cd Junio25/
+  543  cd ej2
+  544  ls
+  545  make
+  546  clear
+  547  make
+  548  clear
+  549  make
+  550  clear
+  551  make
+  552  clear
+  553  make
+  554  clear
+  555  make
+  556  clear
+  557  make
+  558  man strcpy
+  559  man memcpy
+  560  clear
+  561  make
+  562  clear
+  563  make
+  564  man memcpy
+  565  man 2 memcpy
+  566  man memcpy
+  567  make
+  568  clear
+  569  make
+  570  ls
+  571  ./ej2 -i hola.txt 
+  572  make
+  573  ./ej2 -i hola.txt 
+  574  make
+  575  ./ej2 -i hola.txt 
+  576  man fput
+  577  man fputs
+  578  clear
+  579  make
+  580  clear
+  581  make
+  582  mclear
+  583  clear
+  584  make
+  585  ls
+  586  ./ej2 -i hola.txt 
+  587  make
+  588  ./ej2 -i hola.txt 
+  589  make
+  590  ./ej2 -i hola.txt 
+  591  make
+  592  ./ej2 -i hola.txt 
+  593  make
+  594  ./ej2 -i hola.txt 
+  595  make
+  596  clear
+  597  make
+  598  clear
+  599  make
+  600  clear
+  601  +make
+  602  make
+  603  ./ej2 -i hola.txt 
+  604  make
+  605  clear
+  606  ./ej2 -i hola.txt 
+  607  make
+  608  ./ej2 -i hola.txt 
+  609  make
+  610  clear
+  611  ./ej2 -i hola.txt 
+  612  nano hola.txt 
+  613  cat hola.txt 
+  614  clear
+  615  ./ej2 -i hola.txt 
+  616  make
+  617  ./ej2 -i hola.txt 
+  618  make
+  619  clear
+  620  ./ej2 -i hola.txt 
+  621  clear
+  622  make
+  623  clear
+  624  make
+  625  clear
+  626  make
+  627  ./ej2 -i hola.txt 
+  628  man fputs
+  629  make
+  630  ./ej2 -i hola.txt 
+  631  make
+  632  ./ej2 -i hola.txt 
+  633  make
+  634  ./ej2 -i hola.txt 
+  635  clear
+  636  make
+  637  clear
+  638  make
+  639  ./ej2 -i hola.txt 
+  640  make
+  641  ./ej2 -i hola.txt 
+  642  make
+  643  ./ej2 -i hola.txt 
+  644  valgrind ./ej2
+  645  clear
+  646  valgrind ./ej2 -i hola.txt 
+  647  ./ej2 -i hola.txt 
+  648  make
+  649  ./ej2 -i hola.txt 
+  650  history > historial.txt
