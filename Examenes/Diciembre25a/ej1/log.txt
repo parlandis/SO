@@ -6,3 +6,31 @@ Ejecutando comando: echo pene
 pene
 Command terminated (pid: 3582, status: 0)
 
+@@ Running Command #0: echo hello
+hello
+Commando teminado (pid: 3171, status: 0)
+
+ @@ Running Command #1: sleep 2
+Commando teminado (pid: 3172, status: 0)
+
+ @@ Running Command #2: ls -l
+total 124
+-rwxrwxrwx 1 pablo pablo    23 Jun  9 16:10 3x3.txt
+-rwxrwxrwx 1 pablo pablo    59 Jun  9 16:10 5x5.txt
+-rwxrwxrwx 1 pablo pablo   279 Jun 10 17:03 Makefile
+-rwxrwxrwx 1 pablo pablo 22712 Jun  9 16:10 ej1
+-rwxrwxrwx 1 pablo pablo  9938 Jun 10 17:03 ej1.c
+-rwxrwxrwx 1 pablo pablo 17600 Jun  9 16:10 ej1.o
+-rwxrwxrwx 1 pablo pablo 27928 Jun 10 19:47 ej1b
+-rwxrwxrwx 1 pablo pablo 14550 Jun 10 17:03 ej1b.c
+-rwxrwxrwx 1 pablo pablo 20752 Jun 10 19:47 ej1b.o
+-rwxrwxrwx 1 pablo pablo   354 Jun 10 19:50 log.txt
+-rwxrwxrwx 1 pablo pablo    35 Jun 10 17:03 test1
+-rwxrwxrwx 1 pablo pablo    47 Jun 10 17:03 test2
+-rwxrwxrwx 1 pablo pablo    58 Jun  9 16:10 test3.txt
+Commando teminado (pid: 3182, status: 0)
+
+ @@ Running Command #3: false
+Commando teminado (pid: 3183, status: 1)
+
+ 

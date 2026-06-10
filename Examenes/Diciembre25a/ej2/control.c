@@ -12,89 +12,77 @@
 #include <sys/wait.h>
 #include <semaphore.h>
 
-
 sem_t *dock;
-int * memC; // memoria compartida  
 int finish;
 
+/*
+ * handler
+ * - Manejador de señales para capturar SIGINT y SIGTERM si fuera necesario.
+ */
 void handler(int signo)
 {
     if (signo == SIGINT || signo == SIGTERM){ 
-        finish = 1; // Rompe el bucle de cook()
-        printf("\n[CONTROL %d] Señal de salida recibida (%s). Finalizando...\n", 
-               getpid(), signo == SIGINT ? "SIGINT" : "SIGTERM");
+        finish = 1; 
+        printf("\n[CONTROL %d] Señal de salida recibida. Finalizando...\n", getpid());
     }
-    exit(EXIT_SUCCESS);          // Terminamos el proceso de forma segura
+    exit(EXIT_SUCCESS);          
 }
 
+/*
+ * main
+ * - Procesa el argumento N, limpia residuos y crea el semáforo con nombre.
+ * - [CORRECCIÓN] Se elimina el bucle infinito y el sleep para que termine de inmediato como pide el texto.
+ */
 int main(int argc, char *argv[]){
-    int N; // Num camiones
+    int N; // Número de muelles
 
-
-
+    // Validación de argumentos de entrada
     if(argc < 2){
-        fprintf(stderr, "Falta el numero de camiones\n");
+        fprintf(stderr, "Uso: %s <numero_de_muelles>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
-
-        // Configuración de las estructuras sigaction para captura de señales
+    // Configuración básica de señales por seguridad
     struct sigaction term = { 0 }, inter = { 0 };
     term.sa_handler = handler; 
     term.sa_flags = 0;
-    sigemptyset(&term.sa_mask); // Máscara vacía para no bloquear otras señales mientras corre el handler
+    sigemptyset(&term.sa_mask);
 
     inter.sa_handler = handler; 
     inter.sa_flags = 0;
     sigemptyset(&inter.sa_mask);
 
-    // Activamos los manejadores en el Kernel de Linux
     if (sigaction(SIGTERM, &term, NULL) == -1 || sigaction(SIGINT, &inter, NULL) == -1) {
-        perror("[COCINERO] Error al establecer manejadores de señal");
+        perror("Error al establecer manejadores de señal");
         exit(EXIT_FAILURE);
     }
 
-
+    // Capturamos el argumento N
     N = atoi(argv[1]);
 
-    if(N < 0){
-        fprintf(stderr, "El numero debe ser positivo\n");
+    if(N <= 0){
+        fprintf(stderr, "El numero de muelles debe ser un entero positivo\n");
         return EXIT_FAILURE;
     }
+    
+    // [APARTADO A] Desvincular el semáforo para evitar residuos de ejecuciones anteriores
     sem_unlink("/sem_loading_docks");
 
-
+    // [APARTADO A] Crear e inicializar el semáforo con un valor inicial de N muelles
     dock = sem_open("/sem_loading_docks", O_CREAT, 0644, N);
 
     if(dock == SEM_FAILED){
-        fprintf(stderr, "[CONTROL] Error al inicializar el semaforo\n");
+        perror("[CONTROL] Error al inicializar el semaforo con sem_open");
         return EXIT_FAILURE;
     }
 
-    int shd;
-    shd = shm_open("/BUFFER", O_CREAT|O_RDWR, S_IRUSR|S_IWUSR); //
-    if(shd == -1){
-        perror("[CONTROL] Error al abrir objeto de memoria compartida shm_open");
-        sem_unlink("/sem_loading_docks");
-        return EXIT_FAILURE;
-    }
-
-    if(ftruncate(shd, sizeof(int)) == -1){   //
-        perror("[COCINERO] Error al ajustar el tamaño con ftruncate");
-        sem_unlink("/EMPTY"); sem_unlink("/FULL"); shm_unlink("/BUFFER");
-        close(shd);
-        exit(EXIT_FAILURE);
-    }
+    // [CORRECCIÓN] Se eliminó el bloque sobrante de shm_open/ftruncate que no pedía el enunciado
+    // [CORRECCIÓN] Se corrigen las comillas curvadas del printf original que daban error de sintaxis en gcc
+    printf("System initialized with %d loading docks.\n", N);
     
-    printf("[CONTROL] “System initialized with %d loading docks. \n", N);
-    sleep(10);
+    // Cerramos el descriptor del semáforo en este proceso antes de salir
+    sem_close(dock);
 
-    while(finish != 1){
-
-    }
-
-    shm_unlink("/BUFFER");
-    close(shd);
-    sem_unlink("/sem_loading_docks");
-    return 0;
+    // [APARTADO A] El programa principal debe terminar inmediatamente tras inicializar
+    return EXIT_SUCCESS;
 }

@@ -5,37 +5,63 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <pthread.h> 
+
+int fd1;
+
+pthread_mutex_t mutex;
+pthread_cond_t condHilo;
+
+int turno;
+
+void *hilo(void *arg){
+    int *i = (int * ) arg;
+
+    pthread_mutex_lock(&mutex);
+
+    while(turno != *i){  //Si no es su turno no puede escirbir ni coger el fd
+        pthread_cond_wait(&condHilo, &mutex);
+    }
+
+    //Aqui sabemos que es su turno asique puede escribir 
+    int n = *i *1;
+    char buffer[6];
+    sprintf(buffer, "%d%d%d%d%d", n,n,n,n,n);
+    int pos = lseek(fd1, *i*5, SEEK_SET);
+    write(fd1, buffer, 5);
+
+    turno++;
+    pthread_cond_broadcast(&condHilo); // Despertamos a todos, ya que solo entrara al que le toque 
+    pthread_mutex_unlock(&mutex);
+}
 
 int main(void)
 {
-    int fd1,fd2,i,pos;
+    int fd2,i,pos;
     char c;
     char buffer[6];
 
     fd1 = open("output.txt", O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
-    write(fd1, "00000", 5);
-    pid_t hijo;
-    for (i=1; i < 10; i++) {
 
-        hijo= fork();
-        if (hijo== 0) {
-            /* Child */
-            sprintf(buffer, "%d", i*11111);
-            fd2 = open("output.txt", O_WRONLY);
-            pos = lseek(fd2, i *5, SEEK_SET);
-            lseek(fd2, pos, SEEK_SET);
-            write(fd2, buffer, 5);
-            close(fd2);
-            exit(0);
-        } else {
-            /* Parent */
-            
-            lseek(fd1, 5, SEEK_CUR);
-        }
+    pthread_t hilos[5];
+    turno = 0;
+
+    for(i = 0; i < 10; i++){
+        int *j = malloc(sizeof(int));
+        *j = i;
+       if(pthread_create(&hilos[i], NULL , hilo, j) != 0){
+
+        	fprintf(stderr, "Error al crear el hilo %d", *j);
+			return EXIT_FAILURE;
+       }
+
     }
 
-	//wait for all childs to finish
-    while (wait(NULL) != -1);
+	for(int i = 0; i < 10; i++){
+		pthread_join(hilos[i], NULL);
+	}
+
+
 
     lseek(fd1, 0, SEEK_SET);
     printf("File contents are:\n");
