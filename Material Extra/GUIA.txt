@@ -1,0 +1,231 @@
+¡Aquí tienes tu Guía Definitiva de Supervivencia para el Examen de Laboratorio de Sistemas Operativos en la UCM!
+
+Esta guía está diseñada de forma ultra directa, recopilando todo lo que hemos ido desarmando paso a paso: las estructuras exactas, los fallos que te mandan a la recuperación y dónde van a ir a pillarte los profesores.
+
+🚨 PARTE 1: LAS 5 TRAMPAS MORTALES (Dónde te van a pillar)
+Los profesores del departamento conocen los fallos comunes de memoria y concurrencia. Estos son los puntos donde buscan restar puntos de forma automática:
+
+1. El hijo "rebelde" que no muere tras el exec
+La pillada: Si pones execvp o execl y falla (porque el comando no existe o el argumento está mal), el proceso hijo sigue vivo. Al no morir, regresa al main y ejecuta los bucles del padre, duplicando la terminal o provocando un caos absoluto.
+
+Tu escudo: Grábate a fuego poner un perror y un exit(EXIT_FAILURE) inmediatamente debajo de cualquier función de mutación.
+
+C
+execl("/bin/bash", "bash", "-c", cmd, NULL);
+perror("Error en execl"); // Si el código llega aquí, el exec falló obligatoriamente
+exit(EXIT_FAILURE);       // Forzamos la muerte inmediata del hijo
+2. Olvidar el fflush(stdout) en el prompt o en trazas cortas
+La pillada: En el Ubuntu nativo del laboratorio, la salida por pantalla (stdout) va por bloques estrictos. Si imprimes algo que no termine en salto de línea \n (como el prompt >  del modo interactivo), Linux lo retiene en memoria. Te parecerá que el programa está colgado cuando en realidad está esperando que teclees a ciegas.
+
+Tu escudo: Pon siempre fflush(stdout); tras pedir comandos o datos.
+
+C
+printf("> ");
+fflush(stdout);
+3. Modificar la memoria mientras calculas el strlen
+La pillada: Si intentas limpiar el salto de línea \n o \r usando un if basándote en un desplazamiento dinámico de strlen(cadena) - 1, te arriesgas a machacar caracteres útiles (como las comillas de los comandos o los espacios) debido a desbordamientos en la aritmética de strings de C.
+
+Tu escudo: Usa única y exclusivamente la función strcspn. Es una sola línea indestructible que limpia saltos de línea de Linux y Windows a la vez:
+
+C
+linea[strcspn(linea, "\r\n")] = '\0';
+4. Pasar la dirección del índice &i del bucle for a los pthreads
+La pillada: La variable i del bucle reside en la pila (Stack) compartida. Como los hilos corren de forma asíncrona, cuando el hilo 0 se despierte a leer la dirección, la i del main ya habrá avanzado y valdrá 3 o 4. Todos los hilos duplicarán su comportamiento.
+
+Tu escudo: Reserva memoria en el Heap mediante malloc de forma individual para las estructuras de parámetros de cada hilo, o pasa el entero directamente por valor haciendo un cast a void*: (void*)(long)i.
+
+5. No destruir los recursos del sistema (Mutex, Cond, Sem)
+La pillada: Dejar un mutex inicializado, descriptores abiertos, o semáforos activos al hacer un return 0 final se considera una fuga crítica de recursos en la UCM.
+
+Tu escudo: Limpia la mesa antes de salir del programa:
+
+C
+pthread_mutex_destroy(&mutex);
+sem_close(dock);
+📂 PARTE 2: PLANTILLAS INDESTRUCTIBLES PARA LO MÁS DIFÍCIL
+Plantilla A: Procesamiento Paralelo / Asíncrono Puro (Estilo matrix_comp / lanzamiento -b)
+Cuando te pidan lanzar múltiples procesos hijos sin esperar a que termine el anterior, y recopilar la telemetría desordenada al final:
+
+C
+// 1. Estructura para recordar a quién pertenece cada cadáver de proceso
+typedef struct {
+    pid_t pid;
+    char *fichero;
+} registro_t;
+
+// ... dentro del main ...
+registro_t tabla[MAX_PROCESOS];
+int total_lanzados = 0;
+
+// BUCLE DE LANZAMIENTO: Ningún hijo se frena aquí
+for (int i = optind; i < argc; i++) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        // El hijo ejecuta su tarea y muta o sale
+        execl("/bin/bash", "bash", "-c", comando, NULL);
+        exit(EXIT_FAILURE);
+    } else if (pid > 0) {
+        // El padre registra la telemetría y continúa inmediatamente el bucle
+        tabla[total_lanzados].pid = pid;
+        tabla[total_lanzados].fichero = argv[i];
+        total_lanzados++;
+    }
+}
+
+// BUCLE DE RECOGIDA ASÍNCRONA: En terreno neutral, fuera de la lectura
+int status;
+for (int i = 0; i < total_lanzados; i++) {
+    // waitpid con -1 y opción 0 duerme al padre eficientemente hasta que CUALQUIER hijo muera
+    pid_t terminado = waitpid(-1, &status, 0);
+    
+    if (terminado > 0) {
+        // Buscamos en nuestra tabla el nombre del archivo asociado a ese PID
+        char *archivo = "Desconocido";
+        for (int j = 0; j < total_lanzados; j++) {
+            if (tabla[j].pid == terminado) {
+                archivo = tabla[j].fichero;
+                break;
+            }
+        }
+        // Evaluamos con las macros obligatorias del sistema
+        if (WIFEXITED(status)) {
+            printf("[%d] operating on %s exited with status %d\n", terminado, archivo, WEXITSTATUS(status));
+        }
+    }
+}
+Plantilla B: Intérprete Interactivo Completo (Estilo run_commands -i -B)
+Para montar una Shell interactiva que capture comandos por teclado del usuario, soporte extensiones de Bash y se detenga limpiamente con CTRL+D:
+
+C
+if (i_mode == 1) {
+    char linea[256];
+    printf("> ");
+    fflush(stdout); 
+
+    // El bucle fgets se queda abierto escuchando la entrada hasta CTRL+D (devuelve NULL)
+    while (fgets(linea, sizeof(linea), stdin) != NULL) {
+        
+        // Limpieza fulminante
+        linea[strcspn(linea, "\r\n")] = '\0';
+        
+        // Saltamos si el usuario pulsa Enter en vacío
+        if (strlen(linea) == 0) {
+            printf("> "); fflush(stdout);
+            continue;
+        }
+
+        // Si es el apartado B (-B), delegamos el string entero a Bash puro
+        if (B_mode == 1) {
+            pid_t pid = fork();
+            if (pid == 0) {
+                execl("/bin/bash", "bash", "-c", linea, NULL);
+                exit(EXIT_FAILURE);
+            }
+            if (pid > 0) {
+                int status;
+                waitpid(pid, &status, 0); // Sincronización obligatoria en primer plano
+            }
+        } else {
+            // Modo de parseo clásico (separa por tokens)
+            cmd_argv = parse_command(linea, &cmd_argc);
+            pid_t pid = launch_command(cmd_argv);
+            if (pid > 0) {
+                int status;
+                waitpid(pid, &status, 0);
+            }
+            // ¡CRÍTICO! Liberación de memoria dinámica del parseador antes de la siguiente vuelta
+            for (int k = 0; k < cmd_argc; k++) free(cmd_argv[k]);
+            free(cmd_argv);
+        }
+
+        printf("> ");
+        fflush(stdout); 
+    }
+}
+Plantilla C: Monitores Multihilo con Exclusión Mutua (Estilo library.c / Práctica 5)
+Para coordinar hilos concurrentes que acceden a un recurso limitado con prioridades complejas de ejecución:
+
+C
+// Monitor de Sincronización Global
+int recursos_disponibles = MAX_RECURSOS;
+int profesores_esperando = 0;
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond_profesores = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond_estudiantes = PTHREAD_COND_INITIALIZER;
+
+void entrar_monitor(int es_profesor) {
+    pthread_mutex_lock(&mutex);
+
+    if (es_profesor) {
+        profesores_esperando++;
+        // Un hilo prioritario espera SOLO si el recurso está agotado
+        while (recursos_disponibles <= 0) {
+            pthread_cond_wait(&cond_profesores, &mutex);
+        }
+        profesores_esperando--;
+    } else {
+        // Un hilo ordinario espera si no hay hueco O si hay hilos prioritarios en cola
+        while (recursos_disponibles <= 0 || profesores_esperando > 0) {
+            pthread_cond_wait(&cond_estudiantes, &mutex);
+        }
+    }
+
+    recursos_disponibles--;
+    pthread_mutex_unlock(&mutex);
+}
+
+void salir_monitor() {
+    pthread_mutex_lock(&mutex);
+    
+    recursos_disponibles++;
+
+    // Despertamos priorizando siempre las colas según las reglas fijadas
+    if (profesores_esperando > 0) {
+        pthread_cond_broadcast(&cond_profesores);
+    } else {
+        pthread_cond_broadcast(&cond_estudiantes);
+    }
+
+    pthread_mutex_unlock(&mutex);
+}
+🛠️ PARTE 3: PROTOCOLO TERMINAL DE LOS 5 PRIMEROS MINUTOS
+En cuanto te dejen sentarte frente al ordenador con Ubuntu en el laboratorio, ejecuta esto mecánicamente:
+
+Revisar Herramientas: Mira qué versiones tienes operativas:
+
+Bash
+gcc --version
+make --version
+Inspección de Ficheros de Pruebas: Abre los archivos de datos que te suministren usando el comando de control de caracteres de Linux. Esto te revelará si traen espacios ocultos o basura de formato:
+
+Bash
+cat -v input.txt
+Validación de Compilación Inicial: Compila la plantilla en blanco con el Makefile original para verificar que el enlazador responde correctamente antes de meter tu código:
+
+Bash
+make
+Verificación de Enunciados Extremos: Si vas a meter un asterisco (*) a un ejecutable por comandos para expandir rutas, acuérdate de entrecomillarlo siempre ("*" o '*') para que Bash no se apropie del argumento antes de enviárselo a tu getopt.
+
+¡Con este mapa mental estructurado vas con ventaja total frente a cualquier variante de examen que pongan! Conserva la calma, aplica estas plantillas milimétricamente y tienes el aprobado asegurado. ¡A por todas!
+
+
+
+¡Vamos con ello, Pablo! Esta es otra de las preguntas típicas de teoría en el laboratorio y un criterio de corrección fulminante en el departamento de la UCM. Confundir dónde va cada cosa demuestra si entiendes o no cómo interactúa tu programa con el Kernel de Linux.Aquí tienes la regla de oro explicada de forma ultra clara para que la apliques mecánicamente en el examen:1. ¿perror o fprintf(stderr, ...)?Ambas funciones escriben en la salida de errores estándar (stderr), pero se usan en situaciones completamente distintas:🛠️ Usa perror("Mensaje") cuando falle una Llamada al Sistema (System Call)Se usa única y exclusivamente cuando has llamado a una función nativa del Sistema Operativo (las que miras en el man sección 2 o 3) que modifica la variable global errno al fallar.perror lo que hace es mirar el código numérico de esa variable errno y traducirlo automáticamente a texto legible (por ejemplo: "Permission denied", "No such file or directory", "Broken pipe").Cuándo usarlo en el examen: Tras un fallo de fork(), execvp(), execl(), open(), sem_open(), shm_open(), waitpid(), stat(), link(), o malloc().Ejemplo de código:Cif (fork() < 0) {
+    perror("Error crítico en el fork"); // Imprimirá: Error crítico en el fork: Resource temporarily unavailable
+    exit(EXIT_FAILURE);
+}
+✍️ Usa fprintf(stderr, "Texto\n", ...) para Errores de Lógica o ArgumentosSe usa cuando el fallo no es del sistema operativo, sino que el usuario ha metido la pata o el programa ha detectado una condición errónea en su propia lógica. Aquí errno no vale nada (estará a 0 o tendrá basura), por lo que si usas perror imprimirá un texto absurdo como "Error: Success".Cuándo usarlo en el examen: Al validar los argumentos de main (argc), al comprobar los flags de getopt, o si un valor introducido no es válido (por ejemplo, número de paquetes negativo).Ejemplo de código:Cif (argc < 2) {
+    fprintf(stderr, "Uso correcto: %s -i -B\n", argv[0]); // Aquí perror NO sirve
+    return EXIT_FAILURE;
+}
+2. ¿exit() o return?La diferencia radica en qué porción de código se está ejecutando y a quién quieres devolverle el control del flujo.🚪 Usa return <valor> dentro de la función main() o en funciones auxiliaresEn el main: Hacer un return EXIT_SUCCESS; o return EXIT_FAILURE; finaliza el programa entero y le devuelve ese estado de finalización directamente a la Shell de Bash. Es la forma limpia y canónica de terminar.En funciones tuyas (ej. parse_command): Usar return sirve para mandarle el resultado (un puntero, un entero, un PID) a la función que la ha llamado (normalmente el main), para que el programa continúe ejecutándose con normalidad.Ejemplo:Cif (packages < 0) {
+    fprintf(stderr, "Error: Paquetes negativos\n");
+    return EXIT_FAILURE; // Salida limpia desde el main
+}
+💀 Usa exit(EXIT_FAILURE) dentro de los Procesos Hijos o ante Errores FatalesLa función exit() aborta de forma fulminante la ejecución del proceso actual en cualquier línea donde se encuentre, sin importar dentro de cuántas funciones o bucles esté metido.El caso obligatorio del examen (El Hijo): Cuando haces un fork(), el proceso hijo hereda una copia de todo el código del padre. Si el hijo realiza su tarea (o falla el exec), tienes que obligarle a morir con un exit(). Si usaras un return, el hijo saldría de la función actual y continuaría ejecutando el código del padre, volviendo loco al programa.Ante errores fatales: Si en mitad de una función tuya un malloc o un realloc devuelven NULL, el programa no puede continuar de ninguna manera porque reventará con un Segmentation Fault. Ahí metes un exit para tumbar el programa inmediatamente.Ejemplo:Celse if (pid == 0) { // Proceso Hijo
+    execl("/bin/bash", "bash", "-c", cmd, NULL);
+    perror("Error en execl"); // Si llega aquí, el exec falló
+    exit(EXIT_FAILURE);       // El hijo MUERE aquí sí o sí. Prohibido usar return aquí.
+}
+📌 Tabla Resumen para memorizar antes de entrar:Situación en el ExamenHerramienta de TextoHerramienta de SalidaEl usuario introduce mal los parámetrosfprintf(stderr, ...)return EXIT_FAILURE; (desde el main)Falla un getoptfprintf(stderr, ...)return EXIT_FAILURE; (desde el main)Falla un fork() o un open()perror("...")return EXIT_FAILURE; o exit(EXIT_FAILURE)Falla un exec dentro del hijoperror("...")exit(EXIT_FAILURE); (Obligatorio)Falla un malloc crítico de memoriaperror("malloc")exit(EXIT_FAILURE);
